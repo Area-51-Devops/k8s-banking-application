@@ -16,6 +16,13 @@ spec:
       containers:
         - name: fraud-detection
           image: yaswanthreddy1602/fraud-detection-service:v1
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "100m"
           ports:
             - containerPort: 3007
           envFrom:

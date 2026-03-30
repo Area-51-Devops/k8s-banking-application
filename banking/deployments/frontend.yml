@@ -16,6 +16,13 @@ spec:
       containers:
       - name: f1
         image: thamizhanm3/bank-frontend:v1
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
         envFrom:
         - configMapRef:
             name: fcm

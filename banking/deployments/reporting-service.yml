@@ -16,6 +16,13 @@ spec:
       containers:
       - name: reporting-service
         image: yaswanthreddy1602/reporting-service:v1
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
         ports:
         - containerPort: 3010
         envFrom:
