@@ -4,6 +4,7 @@ metadata:
   name: rabbitmq
   namespace: banking-app
 spec:
+  serviceName: "rabbitmq"
   replicas: 1
   selector:
     matchLabels:
@@ -27,8 +28,8 @@ spec:
         startupProbe:
           tcpSocket:
             port: 5672
-          initialDelaySeconds: 20
-          failureThreshold: 60
+          initialDelaySeconds: 240
+          failureThreshold: 10
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
