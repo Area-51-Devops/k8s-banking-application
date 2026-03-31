@@ -157,11 +157,6 @@ Expected:
 ```text
 nfs-client
 ```
- 
----
-# k8s-banking-application
-
-Good — you want something **clean, copy-paste ready for README**, not explanation-heavy. I’ll give you a **production-style command flow** your teammates can follow exactly.
 
 ---
 
