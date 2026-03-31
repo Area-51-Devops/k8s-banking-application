@@ -1,9 +1,9 @@
-For installing CRD and prerequisites for K-gateway
-Go to https://helm.sh/docs/intro/install (Debian/ubuntu Version)
-Go to https://kgateway.dev/docs/envoy/latest/install/helm (Follow all steps)
-Apply k-gateway and route yaml files
-Do Get svc for kgateway and note the port
-Create another node with less resources and install haproxy in it
+1. For installing CRD and prerequisites for K-gateway
+2. Go to https://helm.sh/docs/intro/install (Debian/ubuntu Version)
+3. Go to https://kgateway.dev/docs/envoy/latest/install/helm (Follow all steps)
+4. Apply k-gateway and route yaml files
+5. Do Get svc for kgateway and note the port
+6. Create another node allowing port 80 and ssh from anywhere and install haproxy in it
 steps:
 1. sudo apt update
 2. sudo apt install haproxy -y
