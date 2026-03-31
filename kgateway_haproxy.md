@@ -3,8 +3,8 @@
 3. Go to https://kgateway.dev/docs/envoy/latest/install/helm (Follow all steps)
 4. Apply k-gateway and route yaml files
 5. Do Get svc for kgateway and note the port
-6. Create another node allowing port 80 and ssh from anywhere and install haproxy in it
-steps:
+6. Create another node allowing port 80 and ssh from anywhere and install haproxy in it.
+Follow this steps:
 1. sudo apt update
 2. sudo apt install haproxy -y
 3. sudo nano /etc/haproxy/haproxy.cfg
