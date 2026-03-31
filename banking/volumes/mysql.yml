@@ -6,6 +6,36 @@ metadata:
 type: Opaque
 data:
   MYSQL_ROOT_PASSWORD: cm9vdHBhc3N3b3Jk
+  MYSQL_REPLICATION_PASSWORD: cmVwbGljYXRpb25wYXNzd29yZA==
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: banking-app
+data:
+  primary.cnf: |
+    [mysqld]
+    log-bin=mysql-bin
+    binlog_format=ROW
+    gtid_mode=ON
+    enforce_gtid_consistency=ON
+    sync_binlog=1
+    innodb_flush_log_at_trx_commit=1
+    skip-host-cache
+    skip-name-resolve
+
+  replica.cnf: |
+    [mysqld]
+    super-read-only=1
+    log-bin=mysql-bin
+    binlog_format=ROW
+    gtid_mode=ON
+    enforce_gtid_consistency=ON
+    log_replica_updates=ON
+    relay-log=relay-bin
+    skip-host-cache
+    skip-name-resolve
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -48,6 +78,11 @@ data:
         status VARCHAR(50) DEFAULT 'PENDING',
         FOREIGN KEY (user_id) REFERENCES users(id)
     );
+
+    CREATE USER IF NOT EXISTS 'replicator'@'%'
+      IDENTIFIED WITH mysql_native_password BY 'replicationpassword';
+    GRANT REPLICATION SLAVE ON *.* TO 'replicator'@'%';
+    FLUSH PRIVILEGES;
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -56,69 +91,114 @@ metadata:
   namespace: banking-app
 spec:
   serviceName: "mysql"
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: mysql
+
   template:
     metadata:
       labels:
         app: mysql
+
     spec:
+      initContainers:
+      - name: init-mysql
+        image: mysql:8.0
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          [[ $HOSTNAME =~ -([0-9]+)$ ]] || exit 1
+          ordinal=${BASH_REMATCH[1]}
+
+          mkdir -p /mnt/conf.d
+
+          printf "[mysqld]\nserver-id=%d\n" "$((100 + $ordinal))" > /mnt/conf.d/server-id.cnf
+
+          if [[ $ordinal -eq 0 ]]; then
+            cp /mnt/config-map/primary.cnf /mnt/conf.d/base.cnf
+          else
+            cp /mnt/config-map/replica.cnf /mnt/conf.d/base.cnf
+          fi
+
+        volumeMounts:
+        - name: conf
+          mountPath: /mnt/conf.d
+        - name: config-map
+          mountPath: /mnt/config-map
+
       containers:
+      - name: mysql
+        image: mysql:8.0
+
+        ports:
         - name: mysql
-          image: mysql:8.0
-          ports:
-            - containerPort: 3306
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_ROOT_PASSWORD
-            - name: MYSQL_DATABASE
-              value: banking_db
-            - name: MYSQL_ROOT_HOST
-              value: "%"
-          volumeMounts:
-            - name: mysql-storage
-              mountPath: /var/lib/mysql
-            - name: init-script
-              mountPath: /docker-entrypoint-initdb.d
-          startupProbe:
-            exec:
-              command:
-              - mysqladmin
-              - ping
-              - -h
-              - localhost
-            initialDelaySeconds: 10
-            failureThreshold: 30
-            periodSeconds: 5
-          readinessProbe:
-            exec:
-              command:
-              - mysqladmin
-              - ping
-              - -h
-              - localhost
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            failureThreshold: 3
-          livenessProbe:
-            exec:
-              command:
-              - mysqladmin
-              - ping
-              - -h
-              - localhost
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 3
-      volumes:
+          containerPort: 3306
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "2Gi"
+
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          value: banking_db
+        - name: MYSQL_ROOT_HOST
+          value: "%"
+
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        - name: conf
+          mountPath: /etc/mysql/conf.d
         - name: init-script
-          configMap:
-            name: mysql-init-script
+          mountPath: /docker-entrypoint-initdb.d
+
+        # ✅ FIXED STARTUP PROBE (prevents restarts)
+        startupProbe:
+          exec:
+            command: ["mysqladmin","ping","-h","127.0.0.1"]
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          failureThreshold: 40
+          timeoutSeconds: 10
+
+        # ✅ READINESS (when pod can receive traffic)
+        readinessProbe:
+          exec:
+            command: ["mysqladmin","ping","-h","127.0.0.1"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 10
+
+        # ✅ LIVENESS (switch to TCP - more stable)
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 90
+          periodSeconds: 20
+          timeoutSeconds: 10
+
+      volumes:
+      - name: conf
+        emptyDir: {}
+      - name: config-map
+        configMap:
+          name: mysql-config
+      - name: init-script
+        configMap:
+          name: mysql-init-script
+
   volumeClaimTemplates:
   - metadata:
       name: mysql-storage
@@ -135,9 +215,19 @@ metadata:
   name: mysql
   namespace: banking-app
 spec:
+  clusterIP: None
   selector:
     app: mysql
   ports:
-    - port: 3306
-      targetPort: 3306
-  clusterIP: None
+  - port: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-read
+  namespace: banking-app
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
