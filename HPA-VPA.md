@@ -21,6 +21,7 @@ HPA and VPA Setup Prerequisites
     git clone https://github.com/kubernetes/autoscaler.git
 
     cd autoscaler/vertical-pod-autoscaler
+
     ./hack/vpa-up.sh
  
 7. Apply HPA YAML files
@@ -42,9 +43,10 @@ HPA and VPA Setup Prerequisites
 11. Check autoscaling status
     
     kubectl top pods -n banking-app
+
     kubectl get pods -n banking-app
  
-12. Check scaling
+13. Check scaling
     
     kubectl get hpa -n banking-app -w
  
