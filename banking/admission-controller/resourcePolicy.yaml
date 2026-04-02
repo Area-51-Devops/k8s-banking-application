@@ -1,52 +1,66 @@
 apiVersion: kyverno.io/v1
-kind: Policy
+kind: ClusterPolicy
 metadata:
   name: resource-governance
-  namespace: banking-app
 spec:
   validationFailureAction: Enforce
   background: true
   rules:
 
-    
-    - name: add-default-resources
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-      mutate:
-        foreach:
-          - list: "request.object.spec.containers"
-            patchStrategicMerge:
-              spec:
-                containers:
-                  - (name): "{{ element.name }}"
-                    resources:
-                      requests:
-                        cpu: "40m"
-                        memory: "32Mi"
-                      limits:
-                        cpu: "50m"
-                        memory: "2Gi"
+  # 🔹 Add default resources ONLY if missing
+  - name: add-default-resources
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - banking-app   # ✅ ONLY your app
 
-  
-    - name: validate-resource-limits
-      match:
-        any:
-          - resources:        
-              kinds:
-                - Pod        
-      validate:
-        message: "Resource Limit exceeded"
-        foreach:
-          - list: "request.object.spec.containers"
-            deny:
-              conditions:
-                any:
-                  - key: "{{ element.resources.limits.cpu }}"
-                    operator: GreaterThan
-                    value: "3"
-                  - key: "{{ element.resources.limits.memory }}"
-                    operator: GreaterThan
-                    value: "3Gi"
+    mutate:
+      foreach:
+      - list: "request.object.spec.containers"
+        preconditions:
+          all:
+          - key: "{{ element.resources.requests.cpu || '' }}"
+            operator: Equals
+            value: ""
+          - key: "{{ element.resources.requests.memory || '' }}"
+            operator: Equals
+            value: ""
+
+        patchStrategicMerge:
+          spec:
+            containers:
+            - (name): "{{ element.name }}"
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "512Mi"
+
+  # 🔹 Validate upper limits (prevent overconsumption)
+  - name: validate-resource-limits
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - banking-app   # ✅ ONLY your app
+
+    validate:
+      message: "Resource limit exceeded (max: 1 CPU, 1Gi memory)"
+      foreach:
+      - list: "request.object.spec.containers"
+        deny:
+          conditions:
+            any:
+            - key: "{{ element.resources.limits.cpu }}"
+              operator: GreaterThan
+              value: "1"
+            - key: "{{ element.resources.limits.memory }}"
+              operator: GreaterThan
+              value: "1Gi"

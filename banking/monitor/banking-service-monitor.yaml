@@ -1,0 +1,88 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: banking-app-monitor
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking-app
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - frontend
+          - user-app
+          - account
+          - payment
+          - transaction
+          - loan-service
+          - fraud-detection
+          - notification-service
+          - reporting-service
+          - config-app
+          - service-discovery
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: banking-mysql-monitor
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking-app
+  selector:
+    matchLabels:
+      app: mysql
+  endpoints:
+    - port: mysql
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: banking-redis-monitor
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking-app
+  selector:
+    matchLabels:
+      app: redis-app
+  endpoints:
+    - port: redis
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: banking-rabbitmq-monitor
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking-app
+  selector:
+    matchLabels:
+      app: rabbitmq-app
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s

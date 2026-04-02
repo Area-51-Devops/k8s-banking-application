@@ -16,6 +16,8 @@ spec:
       validate:
         message: "Error: Images are not allowed from this registry"
         foreach:
+
+          # 🔹 Containers
           - list: "request.object.spec.containers"
             anyPattern:
               - image: "yaswanthreddy1602/*"
@@ -23,11 +25,20 @@ spec:
               - image: "mysql:*"
               - image: "redis:*"
               - image: "rabbitmq:*"
+              - image: "docker.io/*"
+              - image: "registry.k8s.io/*"
+              - image: "ghcr.io/*"
+              - image: "cr.kgateway.dev/*"
 
-          - list: "request.object.spec.initContainers"
+          # 🔹 Init Containers (safe)
+          - list: "request.object.spec.initContainers || []"
             anyPattern:
               - image: "yaswanthreddy1602/*"
               - image: "thamizhanm3/*"
               - image: "mysql:*"
               - image: "redis:*"
               - image: "rabbitmq:*"
+              - image: "docker.io/*"
+              - image: "registry.k8s.io/*"
+              - image: "ghcr.io/*"
+              - image: "cr.kgateway.dev/*"
