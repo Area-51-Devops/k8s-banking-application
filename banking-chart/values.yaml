@@ -1,0 +1,44 @@
+# Default values for banking-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+canary:
+  # Enable to deploy canary versions of the microservices
+  enabled: false
+
+namespace: banking-app
+
+microservices:
+  account:
+    replicas: 2
+    image: yaswanthreddy1602/account-service:v1
+  config:
+    replicas: 2
+    image: yaswanthreddy1602/config-service:v1
+  fraudDetection:
+    replicas: 2
+    image: yaswanthreddy1602/fraud-detection-service:v1
+  frontend:
+    replicas: 2
+    image: thamizhanm3/bank-frontend:v1
+  loan:
+    replicas: 2
+    image: yaswanthreddy1602/loan-service:v1
+  notification:
+    replicas: 2
+    image: yaswanthreddy1602/notification-service:v1
+  payment:
+    replicas: 2
+    image: yaswanthreddy1602/payment-service:v1
+  reporting:
+    replicas: 2
+    image: yaswanthreddy1602/reporting-service:v1
+  serviceDiscovery:
+    replicas: 2
+    image: yaswanthreddy1602/service-discovery:v1
+  transaction:
+    replicas: 2
+    image: yaswanthreddy1602/transaction-service:v1
+  user:
+    replicas: 2
+    image: yaswanthreddy1602/user-service:v1

@@ -1,0 +1,88 @@
+﻿apiVersion: v1
+kind: Secret
+metadata:
+  name: payment-secret
+  namespace: {{ .Values.namespace }}
+type: Opaque
+stringData:
+  ACCOUNT_SVC_URL: "http://account-service:3002"
+ 
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-config
+  namespace: {{ .Values.namespace }}
+data:
+  PORT: "3004"
+ 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.microservices.payment.replicas }}
+  selector:
+    matchLabels:
+      app: payment
+  template:
+    metadata:
+      labels:
+        app: payment
+    spec:
+      containers:
+        - name: payment
+          image: {{ .Values.microservices.payment.image }}
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 3004
+          envFrom:
+            - secretRef:
+                name: payment-secret
+            - configMapRef:
+                name: payment-config
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 3004
+            initialDelaySeconds: 5
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3004
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3004
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: payment
+  ports:
+    - port: 3004
+      targetPort: 3004
+  type: ClusterIP
+
+
