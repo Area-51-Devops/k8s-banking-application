@@ -1,0 +1,53 @@
+﻿apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: resource-governance
+  namespace: {{ .Values.namespace }}
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+
+    
+    - name: add-default-resources
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      mutate:
+        foreach:
+          - list: "request.object.spec.containers"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    resources:
+                      requests:
+                        cpu: "40m"
+                        memory: "32Mi"
+                      limits:
+                        cpu: "50m"
+                        memory: "2Gi"
+
+  
+    - name: validate-resource-limits
+      match:
+        any:
+          - resources:        
+              kinds:
+                - Pod        
+      validate:
+        message: "Resource Limit exceeded"
+        foreach:
+          - list: "request.object.spec.containers"
+            deny:
+              conditions:
+                any:
+                  - key: "{{ element.resources.limits.cpu }}"
+                    operator: GreaterThan
+                    value: "3"
+                  - key: "{{ element.resources.limits.memory }}"
+                    operator: GreaterThan
+                    value: "3Gi"
+
