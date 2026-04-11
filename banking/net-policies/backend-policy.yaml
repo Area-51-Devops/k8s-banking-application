@@ -34,6 +34,12 @@ spec:
               name: backend
 
   egress:
+    # Backend → Gateway (response traffic back to gateway/envoy)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: gate
+
     # Backend → Backend (inter-service calls, e.g. payment → account)
     - to:
         - namespaceSelector:

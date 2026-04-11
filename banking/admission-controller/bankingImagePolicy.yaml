@@ -1,8 +1,7 @@
 apiVersion: kyverno.io/v1
-kind: Policy
+kind: ClusterPolicy
 metadata:
   name: banking-image-policy
-  namespace: banking-app
 spec:
   validationFailureAction: Enforce
   background: true
@@ -13,6 +12,11 @@ spec:
           - resources:
               kinds:
                 - Pod
+              namespaces:
+                - frontend
+                - backend
+                - data
+                - gate
       validate:
         message: "Error: Images are not allowed from this registry"
         foreach:

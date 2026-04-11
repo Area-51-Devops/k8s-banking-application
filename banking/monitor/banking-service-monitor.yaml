@@ -1,20 +1,38 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: banking-app-monitor
+  name: banking-frontend-monitor
   namespace: monitoring
   labels:
     release: kube-prometheus-stack
 spec:
   namespaceSelector:
     matchNames:
-      - banking-app
+      - frontend
+  selector:
+    matchLabels:
+      app: frontend
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: banking-backend-monitor
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - backend
   selector:
     matchExpressions:
       - key: app
         operator: In
         values:
-          - frontend
           - user-app
           - account
           - payment
@@ -40,7 +58,7 @@ metadata:
 spec:
   namespaceSelector:
     matchNames:
-      - banking-app
+      - data
   selector:
     matchLabels:
       app: mysql
@@ -59,7 +77,7 @@ metadata:
 spec:
   namespaceSelector:
     matchNames:
-      - banking-app
+      - data
   selector:
     matchLabels:
       app: redis-app
@@ -78,7 +96,7 @@ metadata:
 spec:
   namespaceSelector:
     matchNames:
-      - banking-app
+      - data
   selector:
     matchLabels:
       app: rabbitmq-app

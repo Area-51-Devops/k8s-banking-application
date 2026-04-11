@@ -11,6 +11,7 @@ spec:
     - Ingress
     - Egress
   ingress:
+    # Gateway → Frontend (HTML, CSS, JS, static assets)
     - from:
         - namespaceSelector:
             matchLabels:
@@ -19,6 +20,13 @@ spec:
         - protocol: TCP
           port: 80
   egress:
+    # Frontend → Gateway (response traffic back to gateway/envoy)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: gate
+
+    # DNS resolution
     - to:
         - namespaceSelector: {}
       ports:

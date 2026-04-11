@@ -15,7 +15,10 @@ spec:
           kinds:
           - Pod
           namespaces:
-          - banking-app   # ✅ ONLY your app
+          - frontend
+          - backend
+          - data
+          - gate
 
     mutate:
       foreach:
@@ -49,7 +52,9 @@ spec:
           kinds:
           - Pod
           namespaces:
-          - banking-app   # ✅ ONLY your app
+          - frontend
+          - backend
+          - data
 
     validate:
       message: "Resource limit exceeded (max: 1 CPU, 1Gi memory)"

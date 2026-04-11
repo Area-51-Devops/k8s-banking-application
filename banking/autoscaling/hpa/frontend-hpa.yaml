@@ -2,12 +2,12 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: front-hpa
-  namespace: banking-app
+  namespace: frontend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: front
+    name: front-v1
   minReplicas: 2
   maxReplicas: 6
   metrics:

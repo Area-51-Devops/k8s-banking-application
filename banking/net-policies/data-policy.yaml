@@ -21,6 +21,13 @@ spec:
         - protocol: TCP
           port: 5672   # RabbitMQ
   egress:
+    # Data → Backend (response traffic back to backend services)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: backend
+
+    # DNS resolution
     - to:
         - namespaceSelector: {}
       ports:
