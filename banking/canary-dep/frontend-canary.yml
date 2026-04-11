@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fcm
-  namespace: banking-app
+  namespace: frontend
 data:
   USER_URL: "/api/user"
   ACCOUNT_URL: "/api/account"
@@ -15,7 +15,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: front-v1
-  namespace: banking-app
+  namespace: frontend
 spec:
   replicas: 2   
   selector:
@@ -70,7 +70,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: front-v2
-  namespace: banking-app
+  namespace: frontend
 spec:
   replicas: 1   
   selector:
@@ -85,7 +85,7 @@ spec:
     spec:
       containers:
       - name: f1
-        image: thamizhanm3/bank-frontend:v1
+        image: thamizhanm3/bank-frontend:v2
         resources:
           requests:
             memory: "32Mi"
@@ -125,7 +125,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend
-  namespace: banking-app
+  namespace: frontend
 spec:
   type: ClusterIP
   selector:

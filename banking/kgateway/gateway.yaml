@@ -2,7 +2,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: banking-gateway
-  namespace: banking-app
+  namespace: gate
 spec:
   gatewayClassName: kgateway
   listeners:
@@ -11,4 +11,7 @@ spec:
     port: 80
     allowedRoutes:
       namespaces:
-        from: Same
+        from: Selector
+        selector:
+          matchLabels:
+            allowed: "true"
