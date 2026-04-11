@@ -4,12 +4,12 @@ metadata:
   name: transaction-secret
   namespace: backend
 stringData:
-  DB_HOST: "mysql"
+  DB_HOST: "mysql.data"
   DB_USER: "root"
   DB_PASS: "rootpassword"
   DB_NAME: "banking_db"
-  REDIS_HOST: "redis"
-  MQ_URL: "amqp://rabbitmq"
+  REDIS_HOST: "redis.data"
+  MQ_URL: "amqp://rabbitmq.data"
  
 ---
 apiVersion: v1

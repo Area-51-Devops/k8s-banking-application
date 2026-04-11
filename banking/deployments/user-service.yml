@@ -20,10 +20,10 @@ metadata:
   name: user-service-config
   namespace: backend
 data:
-  DB_HOST: mysql
+  DB_HOST: mysql.data
   DB_USER: root
   DB_NAME: banking_db
-  REDIS_HOST: redis
+  REDIS_HOST: redis.data
   PORT: "3001"
  
 ---

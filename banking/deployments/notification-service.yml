@@ -62,5 +62,5 @@ metadata:
   name: notification-service-config
   namespace: backend
 data:
-  MQ_URL: "amqp://rabbitmq"
+  MQ_URL: "amqp://rabbitmq.data"
   PORT: "3006"
