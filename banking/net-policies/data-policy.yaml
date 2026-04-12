@@ -4,11 +4,12 @@ metadata:
   name: data-policy
   namespace: data
 spec:
-  podSelector: {}   # applies to all pods in data namespace
+  podSelector: {}
   policyTypes:
     - Ingress
     - Egress
   ingress:
+    # Backend → Data (database queries, cache, message queue)
     - from:
         - namespaceSelector:
             matchLabels:
@@ -20,6 +21,16 @@ spec:
           port: 6379   # Redis
         - protocol: TCP
           port: 5672   # RabbitMQ
+
+    # Data ↔ Data (MySQL primary-replica replication)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: data
+      ports:
+        - protocol: TCP
+          port: 3306
+
   egress:
     # Data → Backend (response traffic back to backend services)
     - to:
@@ -27,7 +38,16 @@ spec:
             matchLabels:
               name: backend
 
-    # DNS resolution
+    # Data ↔ Data (MySQL replicas connecting to primary)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: data
+      ports:
+        - protocol: TCP
+          port: 3306
+
+    # DNS resolution (CoreDNS in kube-system)
     - to:
         - namespaceSelector: {}
       ports:

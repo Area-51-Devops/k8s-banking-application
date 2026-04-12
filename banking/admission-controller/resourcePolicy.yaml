@@ -55,6 +55,7 @@ spec:
           - frontend
           - backend
           - data
+          - gate
 
     validate:
       message: "Resource limit exceeded (max: 1 CPU, 1Gi memory)"

@@ -27,7 +27,7 @@ spec:
         - protocol: TCP
           port: 3010
 
-    # Backend → Backend (internal communication)
+    # Backend ↔ Backend (internal communication, all ports)
     - from:
         - namespaceSelector:
             matchLabels:
@@ -40,32 +40,11 @@ spec:
             matchLabels:
               name: gate
 
-    # Backend → Backend (inter-service calls, e.g. payment → account)
+    # Backend ↔ Backend (inter-service calls)
     - to:
         - namespaceSelector:
             matchLabels:
               name: backend
-      ports:
-        - protocol: TCP
-          port: 3001
-        - protocol: TCP
-          port: 3002
-        - protocol: TCP
-          port: 3003
-        - protocol: TCP
-          port: 3004
-        - protocol: TCP
-          port: 3005
-        - protocol: TCP
-          port: 3006
-        - protocol: TCP
-          port: 3007
-        - protocol: TCP
-          port: 3008
-        - protocol: TCP
-          port: 3009
-        - protocol: TCP
-          port: 3010
 
     # Backend → Data (database, cache, message queue)
     - to:
@@ -80,7 +59,7 @@ spec:
         - protocol: TCP
           port: 5672
 
-    # DNS resolution
+    # DNS resolution (CoreDNS in kube-system)
     - to:
         - namespaceSelector: {}
       ports:

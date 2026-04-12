@@ -4,9 +4,7 @@ metadata:
   name: frontend-policy
   namespace: frontend
 spec:
-  podSelector:
-    matchLabels:
-      app: frontend
+  podSelector: {}
   policyTypes:
     - Ingress
     - Egress
@@ -26,7 +24,7 @@ spec:
             matchLabels:
               name: gate
 
-    # DNS resolution
+    # DNS resolution (CoreDNS in kube-system)
     - to:
         - namespaceSelector: {}
       ports:
