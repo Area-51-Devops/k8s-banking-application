@@ -4,7 +4,7 @@ metadata:
   name: account-secret
   namespace: backend
 stringData:
-  DB_HOST: "mysql.data"
+  DB_HOST: "mysql-0.mysql.data"
   DB_USER: "root"
   DB_PASS: "rootpassword"
   DB_NAME: "banking_db"

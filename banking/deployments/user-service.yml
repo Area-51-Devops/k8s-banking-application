@@ -20,7 +20,7 @@ metadata:
   name: user-service-config
   namespace: backend
 data:
-  DB_HOST: mysql.data
+  DB_HOST: mysql-0.mysql.data
   DB_USER: root
   DB_NAME: banking_db
   REDIS_HOST: redis.data
