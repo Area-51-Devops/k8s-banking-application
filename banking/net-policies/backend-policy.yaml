@@ -35,6 +35,13 @@ spec:
         - namespaceSelector:
             matchLabels:
               name: data
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 5672
   egress:
     - to:
         - namespaceSelector:
