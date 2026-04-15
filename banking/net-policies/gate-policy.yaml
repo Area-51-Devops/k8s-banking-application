@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gate-policy
+  namespace: gate
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+ 
+  ingress:
+    # External traffic from HAProxy / internet
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - port: 80
+        - port: 443
+        - port: 8080
+        - port: 8443
+ 
+    # Return traffic from backend services
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: backend
+ 
+    # Return traffic from frontend service
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: frontend
+ 
+  egress:
+    # Forward to backend (all ports — gateway proxies to dynamic service ports)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: backend
+ 
+    # Forward to frontend
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: frontend
+ 
+    # DNS — kube-system has NO "name:" label, only kubernetes.io/metadata.name=kube-system
+    # namespaceSelector:{} scoped to port 53 is the correct pattern here
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+ 
+    # kgateway control plane — confirmed label: name=kgateway-system
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kgateway-system

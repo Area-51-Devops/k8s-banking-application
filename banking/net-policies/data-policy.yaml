@@ -9,20 +9,17 @@ spec:
     - Ingress
     - Egress
   ingress:
-    # Backend → Data (database queries, cache, message queue)
     - from:
         - namespaceSelector:
             matchLabels:
               name: backend
       ports:
         - protocol: TCP
-          port: 3306   # MySQL
+          port: 3306
         - protocol: TCP
-          port: 6379   # Redis
+          port: 6379
         - protocol: TCP
-          port: 5672   # RabbitMQ
-
-    # Data ↔ Data (MySQL primary-replica replication)
+          port: 5672
     - from:
         - namespaceSelector:
             matchLabels:
@@ -30,15 +27,11 @@ spec:
       ports:
         - protocol: TCP
           port: 3306
-
   egress:
-    # Data → Backend (response traffic back to backend services)
     - to:
         - namespaceSelector:
             matchLabels:
               name: backend
-
-    # Data ↔ Data (MySQL replicas connecting to primary)
     - to:
         - namespaceSelector:
             matchLabels:
@@ -46,8 +39,6 @@ spec:
       ports:
         - protocol: TCP
           port: 3306
-
-    # DNS resolution (CoreDNS in kube-system)
     - to:
         - namespaceSelector: {}
       ports:
