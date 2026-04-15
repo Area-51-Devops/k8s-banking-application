@@ -30,6 +30,18 @@ spec:
         - namespaceSelector:
             matchLabels:
               name: backend
+    # Data → Backend (response traffic from MySQL, Redis, RabbitMQ)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: data
+      ports:
+        - protocol: TCP
+          port: 3306
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 5672
   egress:
     - to:
         - namespaceSelector:
