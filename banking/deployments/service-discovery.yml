@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: service-discovery
-          image: yaswanthreddy1602/service-discovery:v1
+          image: area51devops/banking-app-service-discovery:latest
           ports:
             - containerPort: 3009
           envFrom:

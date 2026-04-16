@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: account
-          image: yaswanthreddy1602/account-service:v1
+          image: area51devops/banking-app-account-service:latest
           ports:
             - containerPort: 3002
           envFrom:

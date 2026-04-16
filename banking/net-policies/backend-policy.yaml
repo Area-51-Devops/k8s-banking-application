@@ -22,7 +22,11 @@ spec:
         - protocol: TCP
           port: 3003
         - protocol: TCP
+          port: 3004
+        - protocol: TCP
           port: 3005
+        - protocol: TCP
+          port: 3006
         - protocol: TCP
           port: 3010
     # Backend ↔ Backend (internal service calls)

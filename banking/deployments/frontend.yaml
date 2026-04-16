@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fcm
+  namespace: frontend
+data:
+  VITE_APP_USER_URL: "/api/user"
+  VITE_APP_ACCOUNT_URL: "/api/account"
+  VITE_APP_TRANSACTION_URL: "/api/tx"
+  VITE_APP_LOAN_URL: "/api/loan"
+  VITE_APP_REPORT_URL: "/api/report"
+  VITE_APP_NOTIFY_URL: "/api/notify"
+  VITE_APP_PAYMENT_URL: "/api/payment"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front
+  namespace: frontend
+spec:
+  replicas: 2   
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: f1
+        image: area51devops/banking-app-frontend:v1
+       # resources:
+        #  requests:
+         #   memory: "32Mi"
+          #  cpu: "50m"
+          #limits:
+           # memory: "256Mi"
+            #cpu: "100m"
+        envFrom:
+        - configMapRef:
+            name: fcm
+        ports:
+        - containerPort: 80
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          failureThreshold: 30
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend   
+  ports:
+  - port: 80
+    targetPort: 80

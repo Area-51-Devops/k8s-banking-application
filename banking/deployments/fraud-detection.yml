@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: fraud-detection
-          image: yaswanthreddy1602/fraud-detection-service:v1
+          image: area51devops/banking-app-fraud-detection-service:latest
           ports:
             - containerPort: 3007
           envFrom:
@@ -64,4 +64,5 @@ metadata:
   namespace: backend
 data:
   MQ_URL: "amqp://rabbitmq.data"
+  CONFIG_SVC_URL: "http://config-service:3008"
   PORT: "3007"

@@ -12,12 +12,6 @@ spec:
     - path:
         type: PathPrefix
         value: /api/report
-    filters:
-    - type: URLRewrite
-      urlRewrite:
-        path:
-          type: ReplacePrefixMatch
-          replacePrefixMatch: /
     backendRefs:
     - name: reporting-service
       port: 3010

@@ -5,6 +5,8 @@ metadata:
   namespace: backend
 data:
   PORT: "3008"
+  REDIS_HOST: "redis.data"
+  REDIS_PORT: "6379"
  
 ---
  
@@ -30,7 +32,7 @@ spec:
     spec:
       containers:
         - name: config-container
-          image: yaswanthreddy1602/config-service:v1
+          image: area51devops/banking-app-config-service:latest
           envFrom:
             - configMapRef:
                 name: config-service-config

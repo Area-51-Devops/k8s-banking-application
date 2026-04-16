@@ -5,7 +5,7 @@ metadata:
   namespace: backend
 type: Opaque
 stringData:
-  ACCOUNT_SVC_URL: "http://account-service:3002"
+  DB_PASS: "rootpassword"
  
 ---
 apiVersion: v1
@@ -15,6 +15,11 @@ metadata:
   namespace: backend
 data:
   PORT: "3004"
+  DB_HOST: "mysql-0.mysql.data"
+  DB_USER: "root"
+  DB_NAME: "banking_db"
+  MQ_URL: "amqp://rabbitmq.data"
+  ACCOUNT_SVC_URL: "http://account-service:3002"
  
 ---
 apiVersion: apps/v1
@@ -34,7 +39,7 @@ spec:
     spec:
       containers:
         - name: payment
-          image: yaswanthreddy1602/payment-service:v1
+          image: area51devops/banking-app-payment-service:latest
           ports:
             - containerPort: 3004
           envFrom:

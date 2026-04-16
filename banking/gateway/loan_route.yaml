@@ -12,12 +12,6 @@ spec:
     - path:
         type: PathPrefix
         value: /api/loan
-    filters:
-    - type: URLRewrite
-      urlRewrite:
-        path:
-          type: ReplacePrefixMatch
-          replacePrefixMatch: /
     backendRefs:
     - name: loan-service
       port: 3005

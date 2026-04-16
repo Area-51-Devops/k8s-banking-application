@@ -12,12 +12,6 @@ spec:
     - path:
         type: PathPrefix
         value: /api/account
-    filters:
-    - type: URLRewrite
-      urlRewrite:
-        path:
-          type: ReplacePrefixMatch
-          replacePrefixMatch: /
     backendRefs:
     - name: account-service
       port: 3002
